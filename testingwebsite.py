@@ -10,40 +10,38 @@ import json
 # Updated Firebase initialization
 # --- Firebase Initialization using Streamlit Secrets ---
 # --- Firebase Initialization with Your Project Details ---
+# --- Firebase Initialization ---
 try:
-    # Configuration using your specific project details
-    FIREBASE_CONFIG = {
-        "type": "service_account",
-        "project_id": "portfolio-9843b",  # Must match exactly
+    # Directly access secrets without nesting
+    firebase_config = {
+        "type": st.secrets["FIREBASE"]["type"],
+        "project_id": st.secrets["FIREBASE"]["project_id"],
         "private_key_id": st.secrets["FIREBASE"]["private_key_id"],
         "private_key": st.secrets["FIREBASE"]["private_key"],
         "client_email": st.secrets["FIREBASE"]["client_email"],
         "client_id": st.secrets["FIREBASE"]["client_id"],
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://oauth2.googleapis.com/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "auth_uri": st.secrets["FIREBASE"]["auth_uri"],
+        "token_uri": st.secrets["FIREBASE"]["token_uri"],
+        "auth_provider_x509_cert_url": st.secrets["FIREBASE"]["auth_provider_x509_cert_url"],
         "client_x509_cert_url": st.secrets["FIREBASE"]["client_x509_cert_url"],
-        "universe_domain": "googleapis.com"
+        "universe_domain": st.secrets["FIREBASE"]["universe_domain"]
     }
 
-    # Singleton pattern for Streamlit
+    # Initialize only once
     if not firebase_admin._apps:
-        cred = credentials.Certificate(FIREBASE_CONFIG)
-        firebase_admin.initialize_app(cred, name='portfolio', options={
-            'projectId': 'portfolio-9843b',
-            'storageBucket': 'portfolio-9843b.appspot.com'  # Add if using Storage
-        })
+        cred = credentials.Certificate(firebase_config)
+        firebase_admin.initialize_app(cred)
     
-    # Get initialized app
-    app = firebase_admin.get_app('portfolio')
-    db_firestore = firestore.client(app=app)
+    db_firestore = firestore.client()
 
+except KeyError as e:
+    st.error(f"Missing secret key: {e}")
+    st.stop()
+except ValueError as e:
+    st.error(f"Firebase config error: {e}")
+    st.stop()
 except Exception as e:
-    st.error(f"""
-    🔥 Firebase Initialization Failed 🔥
-    Project: portfolio-9843b
-    Error: {str(e)}
-    """)
+    st.error(f"Unexpected error: {e}")
     st.stop()
 
 def store_response(question, answer):
