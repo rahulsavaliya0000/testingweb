@@ -7,24 +7,25 @@ from datetime import datetime  # Import datetime for timestamp
 import json
 
 # --- Firebase Initialization using Streamlit Secrets ---
+# Updated Firebase initialization
 try:
-    # Load the Firebase configuration from Streamlit secrets.
-    # Ensure that in your secrets, you have a key "FIREBASE_CONFIG" with your JSON as a string or dict.
     firebase_config = st.secrets["FIREBASE"]["FIREBASE_CONFIG"]
-
-    # If firebase_config is a string, parse it as JSON.
+    
+    # Handle string or dict format
     if isinstance(firebase_config, str):
         firebase_config = json.loads(firebase_config)
-    
-    # Initialize the credentials using the loaded config.
+        
+    # Verify critical fields
+    required_fields = ["project_id", "private_key", "client_email"]
+    if not all(field in firebase_config for field in required_fields):
+        st.error("Missing Firebase config fields!")
+        st.stop()
+        
     cred = credentials.Certificate(firebase_config)
-    
-    # Initialize Firebase app if not already done.
-    if not firebase_admin._apps:
-        firebase_admin.initialize_app(cred)
+    firebase_admin.initialize_app(cred)
     db_firestore = firestore.client()
 except Exception as e:
-    st.error("Error initializing Firebase: " + str(e))
+    st.error(f"Firebase Init Error: {str(e)}")
     st.stop()
 
 def store_response(question, answer):
