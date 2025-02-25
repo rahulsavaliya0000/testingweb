@@ -153,11 +153,11 @@ convo = [
     },
     {
         "message": "Who's your favorite cricketer? 🏏",
-        "options": ["Virat Kohli", "MS Dhoni", "Tushar", "Neighber 's DOG"],
+        "options": ["Virat Kohli", "MS Dhoni", "Rahul", "Neighber 's DOG"],
     },
     {
         "message": "Who's your favorite actress? 🎬",
-        "options": ["Rashmika", "Heer", "Alia", "ofcourse me"],
+        "options": ["Rashmika", "Ansi", "Alia", "ofcourse me"],
     }
 ]
 
@@ -230,7 +230,7 @@ def main():
     inject_assets()
     st.markdown("""
     <h1 class="title-animation" style="text-align: center; color: #C71585;">
-        MOST IMP Question's for Ansiii 💘
+        MOST IMP Question's for Heerr 💘
     </h1>
     <div style="height: 4px; background: linear-gradient(90deg, #FF69B4, #FF1493); margin: 10px auto 30px; width: 60%;"></div>
     """, unsafe_allow_html=True)
