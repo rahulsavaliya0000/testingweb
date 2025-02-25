@@ -8,21 +8,29 @@ import json
 
 # --- Firebase Initialization using Streamlit Secrets ---
 # Updated Firebase initialization
+# --- Firebase Initialization using Streamlit Secrets ---
 try:
-    firebase_config = st.secrets["FIREBASE"]["FIREBASE_CONFIG"]
-    
-    # Handle string or dict format
-    if isinstance(firebase_config, str):
-        firebase_config = json.loads(firebase_config)
+    # Check if Firebase app already exists
+    if not firebase_admin._apps:
+        # Load config from secrets
+        firebase_config = st.secrets["FIREBASE"]["FIREBASE_CONFIG"]
         
-    # Verify critical fields
-    required_fields = ["project_id", "private_key", "client_email"]
-    if not all(field in firebase_config for field in required_fields):
-        st.error("Missing Firebase config fields!")
-        st.stop()
+        if isinstance(firebase_config, str):
+            firebase_config = json.loads(firebase_config)
+            
+        # Validate required fields
+        required_fields = ["project_id", "private_key", "client_email"]
+        if not all(field in firebase_config for field in required_fields):
+            st.error("Missing required Firebase config fields!")
+            st.stop()
+            
+        # Initialize with explicit name
+        cred = credentials.Certificate(firebase_config)
+        firebase_admin.initialize_app(cred, name='streamlit-app')
+    else:
+        # Get existing app
+        firebase_admin.get_app('streamlit-app')
         
-    cred = credentials.Certificate(firebase_config)
-    firebase_admin.initialize_app(cred)
     db_firestore = firestore.client()
 except Exception as e:
     st.error(f"Firebase Init Error: {str(e)}")
