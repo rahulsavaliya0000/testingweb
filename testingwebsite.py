@@ -9,31 +9,41 @@ import json
 # --- Firebase Initialization using Streamlit Secrets ---
 # Updated Firebase initialization
 # --- Firebase Initialization using Streamlit Secrets ---
+# --- Firebase Initialization with Your Project Details ---
 try:
-    # Check if Firebase app already exists
+    # Configuration using your specific project details
+    FIREBASE_CONFIG = {
+        "type": "service_account",
+        "project_id": "portfolio-9843b",  # Must match exactly
+        "private_key_id": st.secrets["FIREBASE"]["private_key_id"],
+        "private_key": st.secrets["FIREBASE"]["private_key"],
+        "client_email": st.secrets["FIREBASE"]["client_email"],
+        "client_id": st.secrets["FIREBASE"]["client_id"],
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "client_x509_cert_url": st.secrets["FIREBASE"]["client_x509_cert_url"],
+        "universe_domain": "googleapis.com"
+    }
+
+    # Singleton pattern for Streamlit
     if not firebase_admin._apps:
-        # Load config from secrets
-        firebase_config = st.secrets["FIREBASE"]["FIREBASE_CONFIG"]
-        
-        if isinstance(firebase_config, str):
-            firebase_config = json.loads(firebase_config)
-            
-        # Validate required fields
-        required_fields = ["project_id", "private_key", "client_email"]
-        if not all(field in firebase_config for field in required_fields):
-            st.error("Missing required Firebase config fields!")
-            st.stop()
-            
-        # Initialize with explicit name
-        cred = credentials.Certificate(firebase_config)
-        firebase_admin.initialize_app(cred, name='streamlit-app')
-    else:
-        # Get existing app
-        firebase_admin.get_app('streamlit-app')
-        
-    db_firestore = firestore.client()
+        cred = credentials.Certificate(FIREBASE_CONFIG)
+        firebase_admin.initialize_app(cred, name='portfolio', options={
+            'projectId': 'portfolio-9843b',
+            'storageBucket': 'portfolio-9843b.appspot.com'  # Add if using Storage
+        })
+    
+    # Get initialized app
+    app = firebase_admin.get_app('portfolio')
+    db_firestore = firestore.client(app=app)
+
 except Exception as e:
-    st.error(f"Firebase Init Error: {str(e)}")
+    st.error(f"""
+    🔥 Firebase Initialization Failed 🔥
+    Project: portfolio-9843b
+    Error: {str(e)}
+    """)
     st.stop()
 
 def store_response(question, answer):
