@@ -4,13 +4,27 @@ from streamlit.components.v1 import html
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime  # Import datetime for timestamp
+import json
 
-# --- Firebase Initialization ---
-service_account_path = "portfolio-9843b-firebase-adminsdk-3n2cd-9000d279b5.json"
-cred = credentials.Certificate(service_account_path)
-if not firebase_admin._apps:
-    firebase_admin.initialize_app(cred)
-db_firestore = firestore.client()
+# --- Firebase Initialization using Streamlit Secrets ---
+try:
+    # Load the Firebase configuration from Streamlit secrets.
+    # Ensure that in your secrets, you have a key "FIREBASE_CONFIG" with your JSON as a string or dict.
+    firebase_config = st.secrets["FIREBASE_CONFIG"]
+    # If firebase_config is a string, parse it as JSON.
+    if isinstance(firebase_config, str):
+        firebase_config = json.loads(firebase_config)
+    
+    # Initialize the credentials using the loaded config.
+    cred = credentials.Certificate(firebase_config)
+    
+    # Initialize Firebase app if not already done.
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(cred)
+    db_firestore = firestore.client()
+except Exception as e:
+    st.error("Error initializing Firebase: " + str(e))
+    st.stop()
 
 def store_response(question, answer):
     """
@@ -30,7 +44,7 @@ def store_response(question, answer):
     data = doc.to_dict() or {}
     answers_list = data.get("answers", [])
     
-    # Use datetime.utcnow() for a proper timestamp instead of firestore.SERVER_TIMESTAMP.
+    # Use datetime.utcnow() for a proper timestamp.
     new_answer = {
         "question": question,
         "answer": answer,
