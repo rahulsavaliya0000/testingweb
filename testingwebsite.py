@@ -6,7 +6,7 @@ from firebase_admin import credentials, firestore
 from datetime import datetime  # Import datetime for timestamp
 
 # --- Firebase Initialization ---
-service_account_path = "portfolio-9843b-firebase-adminsdk-3n2cd-ecd32b4442.json"
+service_account_path = "portfolio-9843b-firebase-adminsdk-3n2cd-9000d279b5.json"
 cred = credentials.Certificate(service_account_path)
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
