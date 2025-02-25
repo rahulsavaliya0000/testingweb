@@ -10,7 +10,7 @@ import json
 try:
     # Load the Firebase configuration from Streamlit secrets.
     # Ensure that in your secrets, you have a key "FIREBASE_CONFIG" with your JSON as a string or dict.
-    firebase_config = st.secrets["FIREBASE_CONFIG"]
+    st.secrets["FIREBASE"]["FIREBASE_CONFIG"]
     # If firebase_config is a string, parse it as JSON.
     if isinstance(firebase_config, str):
         firebase_config = json.loads(firebase_config)
